@@ -1,0 +1,94 @@
+<!--import Script from './script';-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Check Whether</title>
+  <link rel="stylesheet" href="style.css"type="text/css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+  <div class="container">
+    <div class="content">
+      <p id="para">Check Whether Today</p>
+      <form>
+      <div class="select-data">
+         <div class="countryy">
+          Select Country:
+        </div>
+        <select class="select-opt-country">
+        </select>
+        <div class="cityy">
+          Select city:
+        </div>
+        <select class="select-opt-city">
+        </select>
+      </div>
+      <div class="get-whether-btn">
+        <button type="submit">Get Whether</button>
+      </div>
+      </form>
+      <div class="whether-box">
+        <div class="display-whether">
+      
+        <div class="whether-table">
+          <div class="temperature box">
+           <i class="fa-solid fa-temperature-low"></i>
+           <div class="text">Feels Like
+           </div>
+           <div class="apidata1 disdata"></div>
+           </div>
+          <div class="condition box">
+            <i class="fa-solid fa-sun"></i>
+           <div class="text"> condition
+           </div>
+           <div class="apidata2 disdata"></div>
+           </div>
+        <div class="windspeed box">
+        <i class="fa-solid fa-wind"></i>
+         <div class="text"> wind Speed
+         </div>
+         <div class="apidata3 disdata"></div>
+         </div>
+         <div class="pressure box">
+          <i class="fa-solid fa-down-left-and-up-right-to-center"></i>
+           <div class="text">
+             Wind Pressure 
+         </div>
+         <div class="apidata4 disdata"></div>
+         </div>
+         <div class="winddirection box">
+           <i class="fa-solid fa-compass"></i>
+           <div class="text">Wind Direction
+           </div>
+           <div class="apidata5 disdata"></div>
+           </div>
+          <div class="humidity box">
+            <i class="fa-solid fa-droplet"></i>
+            <div class="text">Humidity
+            </div>
+            <div class="apidata6 disdata"></div>
+            </div>
+          <div class="coulds box">
+            <i class="fa-solid fa-cloud"></i>
+            <div class="text">Coulds
+            </div>
+            <div class="apidata7 disdata"></div>
+            </div>
+          <div class="gust box">
+            <i class="fa-solid fa-smog"></i>
+            <div class="text">UV
+            </div>
+            <div class="apidata8 disdata"></div>
+            </div>
+        </div>
+      
+    </div>
+    </div>
+    </div>
+  </div>
+<script src="script.js"></script>
+</body>
+</html>
