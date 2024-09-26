@@ -1,9 +1,22 @@
 let countyapi="https://countriesnow.space/api/v0.1/countries";
 const whetherapi="https://api.weatherapi.com/v1/current.json?key=03913c19b8384a86afc22937241609&q=Hyderabad";
+// const flagsapi="https://restcountries.com/v3.1/name/";
+//async function flagsearch(){
+  // let flagg=await fetch(flagsapi);
+  // let flagpng=await flagg.json();
+  // console.log(flagpng[0].flags.png);
+  // let flag=document.createElement("img");
+  // flag.src=flagpng[0].flags.png;
+  // flag.alt="Flag";
+  // para.append(flag)
+//}
+//flagsearch();
+let imgflag=document.querySelector(".Flag");
 let dataof="";
+let flagpng="";
 let countryname=[];
 let cityname=[];
-let selectedCountry="";
+let selectedCountry="India";
 let selectedCity="";
 let apiarr=[];
 const drpdowncountry=document.querySelector(".select-opt-country");
@@ -19,14 +32,17 @@ function findcity(country){
       for(let len=0;len<cityarr.length;len++){
        //console.log(cityarr[len]);
       let cityopt=document.createElement("option");
+      let one=document.createElement("option");
+      one.innerText="---";
       cityopt.innerText=cityarr[len];
+      cityopt.value=cityarr[len];
+      drpdowncity.prepend(one);
       drpdowncity.append(cityopt);
        if(len==cityarr.length-1){
   drpdowncity.addEventListener("change", function() {
     //console.log(drpdowncity.value);
   selectedCity = drpdowncity.value;
   getwhether(country,selectedCity);
-  //console.log(selectedcity);
 });
          break;
        }
@@ -43,8 +59,9 @@ function find(countryname,i){
  
   let countryoptn=document.createElement("option");
    countryoptn.innerText=countryname;
-   //countryoptn.value=countryname;
+   countryoptn.value=countryname;
    drpdowncountry.append(countryoptn);
+   drpdowncountry.value="India";
   // let cityopt=document.createElement("option");
   // cityopt.innerText=dataof[i].cities[i];
   // drpdowncity.append(cityopt);
@@ -62,9 +79,10 @@ function display(dataof){
 }
 
 const countryy=async ()=>{
-  let apiofcountry=await fetch(countyapi)
+  let apiofcountry=await fetch(countyapi);
   let countrydata=await apiofcountry.json();
   dataof=await countrydata.data;
+  ifcon(); 
   display(dataof);
 }
 function addtopage(whetherarr){
@@ -119,8 +137,25 @@ async function selectcity(citynaame,countrynamee){
   whetherarr.push(cityof.uv);
   addtopage(whetherarr);
 }
- drpdowncountry.addEventListener("change", function() {
+const ifcon=async ()=>{
+  if(selectedCountry==="India"){
+     const flagsapi=`https://restcountries.com/v3.1/name/India`;
+  let flagg=await fetch(flagsapi);
+  let flagsrc=await flagg.json();
+  flagpng=flagsrc[0].flags.png;
+  imgflag.src=flagpng;
+  findcity(selectedCountry);
+   }
+}
+ drpdowncountry.addEventListener("change", async function() {
+   
    selectedCountry = drpdowncountry.value;
+ const flagsapi=`https://restcountries.com/v3.1/name/${drpdowncountry.options[drpdowncountry.selectedIndex].value}`;
+  let flagg=await fetch(flagsapi);
+  let flagsrc=await flagg.json();
+  flagpng=flagsrc[0].flags.png;
+  imgflag.src=flagpng;
+  drpdowncity.append("-");
    findcity(selectedCountry);
    
    // Get the value of the selected option
@@ -142,5 +177,4 @@ getbtn.addEventListener("click",(event)=>{
   selectcity(select2,country);
 });
 }
-
 countryy();
