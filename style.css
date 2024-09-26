@@ -4,7 +4,7 @@
   box-sizing: border-box;
 }
 body{
-  background:linear-gradient(to left bottom, rgb(32,205,246),rgb(101,32,246));
+  background:linear-gradient(to right bottom, rgb(32,205,246) 30%,rgb(101,32,246));
 }
 .container{
   width:100vw;
@@ -33,7 +33,7 @@ body{
   align-items: center;
   padding: 0% 5% 0% 5%;
   background-color: yellow;
-  height:7vh;
+  min-height:7vh;
   margin-top:5%;
 }
 .select-data .countryy{
@@ -43,19 +43,26 @@ body{
   font-size: 2vh;
 }
 .select-opt-country{
-  width:8vh;
-  margin-right: 5vh;
+  max-width:10vh;
+  margin-right: 2vh;
+  min-height: 2vh;
 }
 .select-opt-city{
-  width:8vh;
+  max-width:10vh;
+  min-height: 2vh;
 }
 .select-opt-city .cityy{
   margin-left: 3vh;
 }
+.select-data .Flag{
+  width:4vh;
+  height:4vh;
+}
 button{
-  width:10vh;
+  width:15vh;
   margin:3vh 0 2vh 0;
   padding:0.3vh;
+  font-size: 1.8vh;
 }
 .whether-box{
   width:100%;
