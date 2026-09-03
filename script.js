@@ -156,7 +156,6 @@ async function loadWeather(event) {
     const query = encodeURIComponent(`${cityName},${countryName}`);
     const weather = await fetchJson(
       `https://api.weatherapi.com/v1/current.json?key=${weatherApiKey}&q=${query}`
-      // https://api.weatherapi.com/v1/current.json?key=${03913c19b8384a86afc22937241609}`
     );
 
     updateWeatherBoxes(weather);
