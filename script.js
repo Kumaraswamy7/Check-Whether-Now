@@ -1,180 +1,161 @@
-let countyapi="https://countriesnow.space/api/v0.1/countries";
-const whetherapi="https://api.weatherapi.com/v1/current.json?key=03913c19b8384a86afc22937241609&q=Hyderabad";
-// const flagsapi="https://restcountries.com/v3.1/name/";
-//async function flagsearch(){
-  // let flagg=await fetch(flagsapi);
-  // let flagpng=await flagg.json();
-  // console.log(flagpng[0].flags.png);
-  // let flag=document.createElement("img");
-  // flag.src=flagpng[0].flags.png;
-  // flag.alt="Flag";
-  // para.append(flag)
-//}
-//flagsearch();
-let imgflag=document.querySelector(".Flag");
-let dataof="";
-let flagpng="";
-let countryname=[];
-let cityname=[];
-let selectedCountry="India";
-let selectedCity="";
-let apiarr=[];
-const drpdowncountry=document.querySelector(".select-opt-country");
-const drpdowncity=document.querySelector(".select-opt-city");
+const COUNTRIES_API = "https://countriesnow.space/api/v0.1/countries";
+const RESTCOUNTRIES_BASE = "https://restcountries.com/v3.1/name/";
+const WEATHER_API_KEY = "REPLACE_WITH_YOUR_KEY"; // <-- Replace with your WeatherAPI key
 
-function findcity(country){
-  let count=0;
+const imgflag = document.querySelector(".Flag");
+const drpdowncountry = document.querySelector(".select-opt-country");
+const drpdowncity = document.querySelector(".select-opt-city");
+const getbtn = document.querySelector(".get-whether-btn button");
+const statusPara = document.getElementById("para");
+
+let countriesData = []; // cached countries API response
+
+function setStatus(text) {
+  if (statusPara) statusPara.innerText = text;
+}
+
+async function fetchCountries() {
+  try {
+    const res = await fetch(COUNTRIES_API);
+    if (!res.ok) throw new Error("Countries API returned " + res.status);
+    const json = await res.json();
+    countriesData = json.data || [];
+  } catch (err) {
+    console.error("Failed to load countries:", err);
+    setStatus("Failed to load countries. See console.");
+    countriesData = [];
+  }
+}
+
+function populateCountrySelect() {
+  drpdowncountry.innerHTML = "";
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.innerText = "Select country";
+  drpdowncountry.appendChild(placeholder);
+
+  countriesData.forEach(item => {
+    const opt = document.createElement("option");
+    opt.value = item.country;
+    opt.innerText = item.country;
+    drpdowncountry.appendChild(opt);
+  });
+
+  // Try to set India as default if present
+  const indiaOption = Array.from(drpdowncountry.options).find(o => o.value === "India");
+  if (indiaOption) drpdowncountry.value = "India";
+}
+
+function populateCitySelect(countryName) {
   drpdowncity.innerHTML = "";
-  for(let k=0;k<dataof.length;k++){
-  if(dataof[k].country===country){
-    if(count===0){
-      let cityarr=dataof[k].cities;
-      for(let len=0;len<cityarr.length;len++){
-       //console.log(cityarr[len]);
-      let cityopt=document.createElement("option");
-      let one=document.createElement("option");
-      one.innerText="---";
-      cityopt.innerText=cityarr[len];
-      cityopt.value=cityarr[len];
-      drpdowncity.prepend(one);
-      drpdowncity.append(cityopt);
-       if(len==cityarr.length-1){
-  drpdowncity.addEventListener("change", function() {
-    //console.log(drpdowncity.value);
-  selectedCity = drpdowncity.value;
-  getwhether(country,selectedCity);
-});
-         break;
-       }
-      }
-    count=1;
-    }
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.innerText = "---";
+  drpdowncity.appendChild(placeholder);
+
+  const entry = countriesData.find(c => c.country === countryName);
+  if (!entry || !Array.isArray(entry.cities) || entry.cities.length === 0) {
+    return;
   }
-}
-}
-function find(countryname,i){
-  //console.log(countryname,i);
-  //console.log(dataof[i].cities)
-  //console.log(drpdowncountry)
- 
-  let countryoptn=document.createElement("option");
-   countryoptn.innerText=countryname;
-   countryoptn.value=countryname;
-   drpdowncountry.append(countryoptn);
-   drpdowncountry.value="India";
-  // let cityopt=document.createElement("option");
-  // cityopt.innerText=dataof[i].cities[i];
-  // drpdowncity.append(cityopt);
-  
-}
-function display(dataof){
- // console.log("displaying the country data");
-  let message=[];
-  for(let i=0;i<dataof.length;i++){
-    let city=dataof[i];
-    countryname.push(city.country);
-    find(countryname[i],i);
-  }
-  //console.log(countryname);
+  entry.cities.forEach(city => {
+    const opt = document.createElement("option");
+    opt.value = city;
+    opt.innerText = city;
+    drpdowncity.appendChild(opt);
+  });
 }
 
-const countryy=async ()=>{
-  let apiofcountry=await fetch(countyapi);
-  let countrydata=await apiofcountry.json();
-  dataof=await countrydata.data;
-  ifcon(); 
-  display(dataof);
-}
-function addtopage(whetherarr){
-  apiarr=[];
-  //console.log(whetherarr);
-  for(let i=0;i<whetherarr.length;i++){
-    if(i<whetherarr.length-1){
-    apiarr[i]=document.querySelector(`.apidata${i+1}`);
-    }
-    if(i==0){
-    for(let j=0;j<1;j++){
-    apiarr[i].innerText=`${whetherarr[j]}`;
-    }
-    }
-    else if(i>0){
-    apiarr[i].innerText=`${whetherarr[i+1]}`;
-    }
-    //console.log(whetherarr);
+async function loadFlagForCountry(countryName) {
+  if (!countryName) {
+    imgflag.src = "";
+    return;
   }
-     //console.log(apiarr) 
+  try {
+    const res = await fetch(RESTCOUNTRIES_BASE + encodeURIComponent(countryName));
+    if (!res.ok) throw new Error("Flag API returned " + res.status);
+    const json = await res.json();
+    const flags = json[0] && json[0].flags;
+    imgflag.src = (flags && (flags.png || flags.svg)) || "";
+  } catch (err) {
+    console.warn("Could not load flag for", countryName, err);
+    imgflag.src = "";
+  }
 }
-async function selectcity(citynaame,countrynamee){
-  const whetherarr=[];
-//   drpdowncity.addEventListener("change", function() {
-//   selectedCity = drpdowncity.value;
-//   selectcity(selectedcity);
-//   console.log(selectedcity);
-// });
-//console.log(citynaame);
-  let whetherurl=`https://api.weatherapi.com/v1/current.json?key=03913c19b8384a86afc22937241609&q=${citynaame},${countrynamee}`;
-  let citydata=await fetch(whetherurl);
-  let cityy=await citydata.json();
-  let cityof=cityy.current;
-  //console.log(cityof);
-  //console.log("real temp",cityof.temp_c);
-  whetherarr.push(cityof.temp_c);
-  //console.log("flees like",cityof.feelslike_c);
-  whetherarr.push(cityof.feelslike_c);
- // console.log("text",cityof.condition.text);
-  whetherarr.push(cityof.condition.text);
-  //console.log("wind kph",cityof.wind_kph);
-  whetherarr.push(cityof.wind_kph);
-  //console.log("pressure",cityof.pressure_in);
-  whetherarr.push(cityof.pressure_in);
- // console.log("wind_direction",cityof.wind_dir);
-  whetherarr.push(cityof.wind_dir);
- // console.log("humidity",cityof.humidity);
-    whetherarr.push(cityof.humidity);
- // console.log("cloud",cityof.cloud);
-  whetherarr.push(cityof.cloud);
- // console.log("UV",cityof.uv);
-  whetherarr.push(cityof.uv);
-  addtopage(whetherarr);
+
+async function fetchAndShowWeather(countryName, cityName) {
+  if (!WEATHER_API_KEY || WEATHER_API_KEY === "REPLACE_WITH_YOUR_KEY") {
+    setStatus("Put your WeatherAPI key in script.js (WEATHER_API_KEY).");
+    return;
+  }
+  if (!countryName || !cityName) {
+    setStatus("Please select a country and city.");
+    return;
+  }
+
+  setStatus(`Loading weather for ${cityName}, ${countryName}...`);
+  try {
+    const url = `https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(cityName + "," + countryName)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Weather API returned " + res.status);
+    const data = await res.json();
+    if (!data || !data.current) throw new Error("Malformed weather response");
+
+    const c = data.current;
+    // Map values to the eight .apidata slots in index.html
+    // index.html: apidata1 (Feels Like), apidata2 (condition), apidata3 (wind speed),
+    // apidata4 (pressure), apidata5 (wind direction), apidata6 (humidity),
+    // apidata7 (clouds), apidata8 (uv)
+    const mapping = [
+      `${c.feelslike_c} °C`, // apidata1
+      `${c.condition?.text || "N/A"}`, // apidata2
+      `${c.wind_kph} kph`, // apidata3
+      `${c.pressure_in} in`, // apidata4
+      `${c.wind_dir || "N/A"}`, // apidata5
+      `${c.humidity}%`, // apidata6
+      `${c.cloud}%`, // apidata7
+      `${c.uv !== undefined ? c.uv : "N/A"}` // apidata8
+    ];
+
+    for (let i = 0; i < mapping.length; i++) {
+      const el = document.querySelector(`.apidata${i + 1}`);
+      if (el) el.innerText = mapping[i];
+    }
+    setStatus(`Weather for ${cityName}, ${countryName}`);
+  } catch (err) {
+    console.error("Weather fetch failed:", err);
+    setStatus("Failed to load weather. See console.");
+  }
 }
-const ifcon=async ()=>{
-  if(selectedCountry==="India"){
-     const flagsapi=`https://restcountries.com/v3.1/name/India`;
-  let flagg=await fetch(flagsapi);
-  let flagsrc=await flagg.json();
-  flagpng=flagsrc[0].flags.png;
-  imgflag.src=flagpng;
-  findcity(selectedCountry);
-   }
+
+function attachEventHandlers() {
+  drpdowncountry.addEventListener("change", async () => {
+    const country = drpdowncountry.value;
+    populateCitySelect(country);
+    await loadFlagForCountry(country);
+    setStatus("Select a city and click Get Whether");
+  });
+
+  getbtn.addEventListener("click", e => {
+    e.preventDefault();
+    const country = drpdowncountry.value;
+    const city = drpdowncity.value;
+    fetchAndShowWeather(country, city);
+  });
 }
- drpdowncountry.addEventListener("change", async function() {
-   
-   selectedCountry = drpdowncountry.value;
- const flagsapi=`https://restcountries.com/v3.1/name/${drpdowncountry.options[drpdowncountry.selectedIndex].value}`;
-  let flagg=await fetch(flagsapi);
-  let flagsrc=await flagg.json();
-  flagpng=flagsrc[0].flags.png;
-  imgflag.src=flagpng;
-  drpdowncity.append("-");
-   findcity(selectedCountry);
-   
-   // Get the value of the selected option
-  //console.log("Selected country:", selectedCountry);
-});
-let getbtn=document.querySelector(".get-whether-btn button");
-getbtn.addEventListener("click",(event)=>{
-  event.preventDefault();
-});
-function getwhether(country,select2){
-getbtn.addEventListener("click",(event)=>{
-  event.preventDefault();
-  //let selectedcityy=drpdowncity.value;
-  drpdowncity.addEventListener("change", function() {
-  selectedCity = drpdowncity.value;
-  //selectcity(selectedcity);
-  //console.log(selectedcity);
-});
-  selectcity(select2,country);
-});
+
+async function init() {
+  setStatus("Loading countries...");
+  await fetchCountries();
+  populateCountrySelect();
+  attachEventHandlers();
+  // If a default is set (India), populate cities and flag
+  if (drpdowncountry.value) {
+    populateCitySelect(drpdowncountry.value);
+    await loadFlagForCountry(drpdowncountry.value);
+    setStatus("Select a city and click Get Whether");
+  } else {
+    setStatus("Select a country");
+  }
 }
-countryy();
+
+init();
